@@ -4,3 +4,9 @@ server:
 spring:
   application:
     name: jwt-auth
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/public.pub
