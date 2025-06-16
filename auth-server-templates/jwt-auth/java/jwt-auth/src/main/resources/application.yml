@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: jwt-auth
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
 
   security:
     oauth2:
