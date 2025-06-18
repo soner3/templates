@@ -9,4 +9,6 @@ import com.sonastan.jwt_auth.infrastructure.constants.UserRole;
 
 public interface RoleRepository extends JpaRepository<Role, Integer> {
     Optional<Role> findByRolename(UserRole rolename);
+
+    boolean existsByRolename(UserRole rolename);
 }

@@ -46,4 +46,9 @@ public class Role extends AuditEntity {
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "role", cascade = CascadeType.MERGE)
     private Set<User> users = new HashSet<>();
+
+    public Role(UserRole rolename) {
+        this.roleUuid = java.util.UUID.randomUUID().toString();
+        this.rolename = rolename;
+    }
 }

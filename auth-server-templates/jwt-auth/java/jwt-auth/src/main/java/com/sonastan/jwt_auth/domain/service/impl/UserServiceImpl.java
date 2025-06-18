@@ -1,10 +1,12 @@
 package com.sonastan.jwt_auth.domain.service.impl;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sonastan.jwt_auth.domain.event.user.UserCreatedEvent;
 import com.sonastan.jwt_auth.domain.model.Role;
 import com.sonastan.jwt_auth.domain.model.User;
 import com.sonastan.jwt_auth.domain.repository.RoleRepository;
@@ -26,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher publisher;
     private final CompromisedPasswordChecker passwordChecker;
 
     @Override
@@ -36,6 +39,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRolename(UserRole.ROLE_USER)
                 .orElseThrow(() -> new ServerException("Role not found: " + UserRole.ROLE_USER));
         User user = new User(username, email, encodedPassword, firstName, lastName, role);
+        publisher.publishEvent(new UserCreatedEvent(user));
         User persistUser = userRepository.save(user);
         return UserDetailsImpl.build(persistUser);
     }

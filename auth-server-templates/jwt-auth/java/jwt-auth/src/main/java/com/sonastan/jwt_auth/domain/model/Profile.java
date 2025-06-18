@@ -1,5 +1,7 @@
 package com.sonastan.jwt_auth.domain.model;
 
+import java.util.UUID;
+
 import com.sonastan.jwt_auth.infrastructure.security.SpringSecurityAuditorAware;
 
 import jakarta.persistence.Column;
@@ -18,8 +20,8 @@ import lombok.ToString;
 
 @Entity
 @EntityListeners(SpringSecurityAuditorAware.class)
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "profiles")
 public class Profile extends AuditEntity {
@@ -37,5 +39,10 @@ public class Profile extends AuditEntity {
     @EqualsAndHashCode.Exclude
     @JoinColumn(name = "user_fk", nullable = false)
     private User user;
+
+    public Profile(User user) {
+        this.profileUuid = UUID.randomUUID().toString();
+        this.user = user;
+    }
 
 }
