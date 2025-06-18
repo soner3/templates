@@ -1,5 +1,7 @@
 package com.sonastan.jwt_auth.domain.model;
 
+import java.util.UUID;
+
 import com.sonastan.jwt_auth.infrastructure.security.SpringSecurityAuditorAware;
 
 import jakarta.persistence.CascadeType;
@@ -70,12 +72,18 @@ public class User extends AuditEntity {
     @JoinColumn(name = "role_fk", nullable = false)
     private Role role;
 
-    public User(String username, String email, String password, String firstname, String lastname) {
+    public User(String username, String email, String password, String firstname, String lastname, Role role) {
+        this.userUuid = UUID.randomUUID().toString();
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.isEnabled = true;
+        this.isCredentialsNonExpired = true;
+        this.isAccountNonLocked = true;
+        this.isAccountNonExpired = true;
+        this.role = role;
     }
 
 }

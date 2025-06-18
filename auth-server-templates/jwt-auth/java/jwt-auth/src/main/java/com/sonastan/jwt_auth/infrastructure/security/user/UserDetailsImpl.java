@@ -44,7 +44,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public static UserDetails builder(User user) {
+    public static UserDetails build(User user) {
         log.debug("Building UserDetails for user: {}", user.getUsername());
         Collection<? extends GrantedAuthority> authorities = List
                 .of(new SimpleGrantedAuthority(user.getRole().getRolename().name()));
