@@ -35,7 +35,6 @@ public class JwtAuthApplication {
 							new User("admin", "admin@example.com", passwordEncoder.encode("admin123"), "Admin", "User",
 									adminRole));
 					log.info("Admin user created with UUID: {}", adminUser.getUserUuid());
-
 				}
 			}
 

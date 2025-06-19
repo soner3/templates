@@ -87,12 +87,12 @@ public class UserServiceImpl implements UserService {
     private void validateUserData(String username, String email) {
 
         if (userRepository.existsByUsername(username)) {
-            log.error("User with username '{}' already exists", username);
+            log.warn("User with username '{}' already exists", username);
             throw new IllegalModelArgumentException("User with username '" + username + "' already exists");
         }
 
         if (userRepository.existsByEmail(email)) {
-            log.error("User with email '{}' already exists", email);
+            log.warn("User with email '{}' already exists", email);
             throw new IllegalModelArgumentException("User with email '" + email + "' already exists");
         }
     }
@@ -100,17 +100,17 @@ public class UserServiceImpl implements UserService {
     private void validateUserData(String username, String email, String password) {
 
         if (userRepository.existsByUsername(username)) {
-            log.error("User with username '{}' already exists", username);
+            log.warn("User with username '{}' already exists", username);
             throw new IllegalModelArgumentException("User with username '" + username + "' already exists");
         }
 
         if (userRepository.existsByEmail(email)) {
-            log.error("User with email '{}' already exists", email);
+            log.warn("User with email '{}' already exists", email);
             throw new IllegalModelArgumentException("User with email '" + email + "' already exists");
         }
 
         if (passwordChecker.check(password).isCompromised()) {
-            log.error("Password '{}' is compromised", password);
+            log.warn("Password '{}' is compromised", password);
             throw new IllegalModelArgumentException(
                     "Password '" + password + "' is compromised. Please choose a different password.");
         }

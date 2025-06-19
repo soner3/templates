@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,8 +37,24 @@ public class ApiControllerAdvice {
                 .collect(Collectors.toMap(
                         err -> ((FieldError) err).getField(),
                         err -> err.getDefaultMessage()));
+        problemDetail.setDetail("Validation failed for one or more fields");
         problemDetail.setProperties(validationErrors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handleException(Exception ex) {
+        return createProblemDetail("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, ex);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handleJwtException(JwtException ex) {
+        return createProblemDetail("JWT Error", HttpStatus.UNAUTHORIZED, ex);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException ex) {
+        return createProblemDetail("Bad Credentials", HttpStatus.BAD_REQUEST, ex);
     }
 
 }
