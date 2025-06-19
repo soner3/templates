@@ -1,4 +1,4 @@
-package com.sonastan.jwt_auth.domain.service.impl;
+package com.sonastan.jwt_auth.domain.service;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
@@ -6,12 +6,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sonastan.jwt_auth.application.service.UserService;
 import com.sonastan.jwt_auth.domain.event.user.UserCreatedEvent;
 import com.sonastan.jwt_auth.domain.model.Role;
 import com.sonastan.jwt_auth.domain.model.User;
 import com.sonastan.jwt_auth.domain.repository.RoleRepository;
 import com.sonastan.jwt_auth.domain.repository.UserRepository;
-import com.sonastan.jwt_auth.domain.service.UserService;
 import com.sonastan.jwt_auth.infrastructure.constants.UserRole;
 import com.sonastan.jwt_auth.infrastructure.exception.IllegalModelArgumentException;
 import com.sonastan.jwt_auth.infrastructure.exception.ServerException;

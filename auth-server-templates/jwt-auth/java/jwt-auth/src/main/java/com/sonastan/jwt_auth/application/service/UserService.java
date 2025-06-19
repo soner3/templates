@@ -1,4 +1,4 @@
-package com.sonastan.jwt_auth.domain.service;
+package com.sonastan.jwt_auth.application.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
