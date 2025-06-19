@@ -14,3 +14,18 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:keys/public.pub
+
+springdoc:
+  swagger-ui:
+    csrf:
+      enabled: true
+    display-request-duration: true
+    path: /openapi/swagger-ui.html
+  api-docs:
+    path: /openapi/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

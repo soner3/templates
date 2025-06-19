@@ -12,10 +12,19 @@ import com.sonastan.jwt_auth.domain.repository.RoleRepository;
 import com.sonastan.jwt_auth.domain.repository.UserRepository;
 import com.sonastan.jwt_auth.infrastructure.constants.UserRole;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
 @Slf4j
+@OpenAPIDefinition(info = @Info(title = "API", description = "Documentation for all API endpoints of this project", version = "1.0"), servers = {
+		@Server(description = "DEV ENV", url = "http://localhost:8080") })
+@SecurityScheme(name = "jwt", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER, paramName = "Authorization", scheme = "bearer", bearerFormat = "JWT")
 public class JwtAuthApplication {
 
 	public static void main(String[] args) {

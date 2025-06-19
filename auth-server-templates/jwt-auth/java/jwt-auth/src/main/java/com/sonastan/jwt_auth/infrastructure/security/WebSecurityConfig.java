@@ -1,6 +1,7 @@
 package com.sonastan.jwt_auth.infrastructure.security;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,9 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.util.StringUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -46,11 +50,15 @@ public class WebSecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(r -> r
                 .requestMatchers("/v1/auth/login").permitAll()
+                .requestMatchers("/v1/auth/csrf").permitAll()
                 .requestMatchers("/v1/user/create").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/openapi/**").permitAll()
                 .anyRequest().authenticated())
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
+                .cors(corsConfig -> corsConfig.configurationSource(corsConfigurationSource()))
                 .formLogin(form -> form.disable())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()))
@@ -88,6 +96,18 @@ public class WebSecurityConfig {
     @Bean
     protected CompromisedPasswordChecker compromisedPasswordChecker() {
         return new HaveIBeenPwnedRestApiPasswordChecker();
+    }
+
+    @Bean
+    protected CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowedOrigins(List.of("http://localhost:8080"));
+        config.setAllowCredentials(true);
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
 }

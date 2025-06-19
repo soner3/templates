@@ -3,8 +3,10 @@ package com.sonastan.jwt_auth.domain.service;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sonastan.jwt_auth.application.service.UserService;
 import com.sonastan.jwt_auth.domain.event.user.UserCreatedEvent;
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDetails updateUser(String userUuid, String username, String email, String firstname,
             String lastname) {
         log.debug("Updating user with UUID: {}", userUuid);
@@ -64,7 +67,7 @@ public class UserServiceImpl implements UserService {
                     log.error("User not found with UUID: {}", userUuid);
                     return new IllegalModelArgumentException("User not found with UUID: " + userUuid);
                 });
-        validateUserData(username, email);
+        validateUserData(username, email, user);
         user.setUsername(username);
         user.setEmail(email);
         user.setFirstname(firstname);
@@ -75,6 +78,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(String userUuid) {
         log.debug("Deleting user with UUID: {}", userUuid);
         int deleteCount = userRepository.deleteByUserUuid(userUuid);
@@ -95,7 +99,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .orElseThrow(() -> {
                     log.error("User not found with username: {}", username);
-                    return new IllegalModelArgumentException("User not found with username: " + username);
+                    return new UsernameNotFoundException("User not found with username: " + username);
                 });
     }
 
@@ -113,14 +117,14 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
-    private void validateUserData(String username, String email) {
+    private void validateUserData(String username, String email, User user) {
 
-        if (userRepository.existsByUsername(username)) {
+        if (userRepository.existsByUsername(username) && !user.getUsername().equals(username)) {
             log.warn("User with username '{}' already exists", username);
             throw new IllegalModelArgumentException("User with username '" + username + "' already exists");
         }
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email) && !user.getEmail().equals(email)) {
             log.warn("User with email '{}' already exists", email);
             throw new IllegalModelArgumentException("User with email '" + email + "' already exists");
         }
