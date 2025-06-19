@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sonastan.jwt_auth.application.service.JwtService;
 import com.sonastan.jwt_auth.infrastructure.security.user.UserDetailsImpl;
-import com.sonastan.jwt_auth.interfaces.rest.dto.LoginRequestDto;
-import com.sonastan.jwt_auth.interfaces.rest.dto.LoginResponseDto;
-import com.sonastan.jwt_auth.interfaces.rest.dto.RefreshResponseDto;
+import com.sonastan.jwt_auth.interfaces.rest.dto.auth.LoginRequestDto;
+import com.sonastan.jwt_auth.interfaces.rest.dto.auth.LoginResponseDto;
+import com.sonastan.jwt_auth.interfaces.rest.dto.auth.RefreshResponseDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
