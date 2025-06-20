@@ -1,10 +1,11 @@
 package com.sonastan.jwt_auth.application.event;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +56,10 @@ public class UserEventHandlerTest {
                         roleRepository.save(new Role(UserRole.ROLE_USER))));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
         Optional<Profile> maybeProfile = profileRepository.findByUser(user);
-        Assertions.assertThat(maybeProfile.isPresent()).isTrue();
+        assertThat(maybeProfile.isPresent()).isTrue();
         Profile profile = maybeProfile.get();
-        Assertions.assertThat(profile).isNotNull();
-        Assertions.assertThat(profile.getUser().getUserId()).isEqualTo(user.getUserId());
+        assertThat(profile).isNotNull();
+        assertThat(profile.getUser().getUserId()).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -67,8 +68,8 @@ public class UserEventHandlerTest {
                 .save(new User("test2", "test2", "null", "null", "null",
                         roleRepository.save(new Role(UserRole.ROLE_USER))));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
-        Assertions.assertThat(testEventListener.events.size()).isEqualTo(1);
-        Assertions.assertThat(testEventListener.events.get(0).user()).isEqualTo(user);
+        assertThat(testEventListener.events.size()).isEqualTo(1);
+        assertThat(testEventListener.events.get(0).user()).isEqualTo(user);
     }
 
 }

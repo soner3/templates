@@ -1,6 +1,8 @@
 package com.sonastan.jwt_auth.application.mapper;
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,13 +20,13 @@ public class UserMapperTest {
                 .build(new User("user", "null", "null", "null", "null", new Role(UserRole.ROLE_USER)));
 
         UserResponseDto resDto = UserMapper.mapUserDetailsToUserResponseDto(userDetails);
-        Assertions.assertThat(resDto).isInstanceOf(UserResponseDto.class);
-        Assertions.assertThat(resDto.username()).isEqualTo("user");
+        assertThat(resDto).isInstanceOf(UserResponseDto.class);
+        assertThat(resDto.username()).isEqualTo("user");
     }
 
     @Test
     void test_parameter_is_not_userdetailsimpl_throws_illegalargumentexception() {
-        Assertions.assertThatThrownBy(() -> UserMapper.mapUserDetailsToUserResponseDto(null))
+        assertThatThrownBy(() -> UserMapper.mapUserDetailsToUserResponseDto(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
