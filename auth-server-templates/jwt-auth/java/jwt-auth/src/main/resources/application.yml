@@ -8,7 +8,6 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
-
   security:
     oauth2:
       resourceserver:
