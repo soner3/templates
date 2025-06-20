@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sonastan.jwt_auth.application.service.JwtService;
+import com.sonastan.jwt_auth.infrastructure.constants.JwtType;
 import com.sonastan.jwt_auth.infrastructure.security.user.UserDetailsImpl;
 import com.sonastan.jwt_auth.interfaces.rest.dto.auth.LoginRequestDto;
 import com.sonastan.jwt_auth.interfaces.rest.dto.auth.LoginResponseDto;
@@ -69,7 +70,7 @@ public class AuthController {
         })
         @PostMapping("/refresh")
         public ResponseEntity<RefreshResponseDto> refresh(@AuthenticationPrincipal Jwt jwt) {
-                Jwt validatedJwt = jwtService.validateToken(jwt.getTokenValue(), "refresh");
+                Jwt validatedJwt = jwtService.validateToken(jwt.getTokenValue(), JwtType.REFRESH);
                 log.info("Refresh token validated for user: {}", validatedJwt.getSubject());
                 Jwt accessToken = jwtService.refreshAccessToken(validatedJwt);
                 return ResponseEntity.ok(new RefreshResponseDto(accessToken.getTokenValue()));

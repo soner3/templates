@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.sonastan.jwt_auth.application.service.JwtService;
 import com.sonastan.jwt_auth.application.service.UserService;
+import com.sonastan.jwt_auth.infrastructure.constants.JwtType;
 import com.sonastan.jwt_auth.infrastructure.security.user.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -32,11 +33,11 @@ public class JwtServiceImpl implements JwtService {
     private final UserService userService;
 
     @Override
-    public Jwt validateToken(String token, String type) {
+    public Jwt validateToken(String token, JwtType type) {
         Jwt jwt = jwtDecoder.decode(token);
         String userUuid = jwt.getSubject();
         log.info("Validating token for user: {}", userUuid);
-        if (!jwt.getClaimAsString("type").equals(type)) {
+        if (!jwt.getClaimAsString("type").equals(type.name().toLowerCase())) {
             log.warn("Invalid token type for user: {}. Expected: {}, Found: {}", userUuid, type,
                     jwt.getClaimAsString("type"));
             throw new JwtException("Invalid token type");
@@ -61,7 +62,7 @@ public class JwtServiceImpl implements JwtService {
                 .expiresAt(expiresAt)
                 .notBefore(now)
                 .issuer("http://localhost:8080")
-                .claim("type", "refresh")
+                .claim("type", JwtType.REFRESH.name().toLowerCase())
                 .build();
 
         Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
@@ -88,7 +89,7 @@ public class JwtServiceImpl implements JwtService {
                 .notBefore(now)
                 .issuer("http://localhost:8080")
                 .claim("scope", authorities.stream().map(GrantedAuthority::getAuthority).toList())
-                .claim("type", "access")
+                .claim("type", JwtType.ACCESS.name().toLowerCase())
                 .build();
 
         Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));

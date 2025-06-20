@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,16 +45,25 @@ public class UserEventHandlerTest {
     @Autowired
     TestEventListener testEventListener;
 
+    User user;
+
     @BeforeEach
-    void beforeEach() {
+    void setUp() {
+        user = null;
         testEventListener.reset();
+        user = userRepository.save(new User("test", "test@test.com", "password", "Test", "User",
+                roleRepository.save(new Role(UserRole.ROLE_USER))));
+    }
+
+    @AfterEach
+    void cleanUp() {
+        profileRepository.deleteAll();
+        userRepository.deleteAll();
+        roleRepository.deleteAll();
     }
 
     @Test
     void test_user_created_then_profile_is_created() {
-        User user = userRepository
-                .save(new User("test1", "test1", "null", "null", "null",
-                        roleRepository.save(new Role(UserRole.ROLE_USER))));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
         Optional<Profile> maybeProfile = profileRepository.findByUser(user);
         assertThat(maybeProfile.isPresent()).isTrue();
@@ -64,9 +74,6 @@ public class UserEventHandlerTest {
 
     @Test
     void test_user_created_event_is_listened() {
-        User user = userRepository
-                .save(new User("test2", "test2", "null", "null", "null",
-                        roleRepository.save(new Role(UserRole.ROLE_USER))));
         eventPublisher.publishEvent(new UserCreatedEvent(user));
         assertThat(testEventListener.events.size()).isEqualTo(1);
         assertThat(testEventListener.events.get(0).user()).isEqualTo(user);
