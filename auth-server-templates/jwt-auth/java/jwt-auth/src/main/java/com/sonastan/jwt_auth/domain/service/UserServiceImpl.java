@@ -16,6 +16,7 @@ import com.sonastan.jwt_auth.domain.repository.RoleRepository;
 import com.sonastan.jwt_auth.domain.repository.UserRepository;
 import com.sonastan.jwt_auth.infrastructure.constants.UserRole;
 import com.sonastan.jwt_auth.infrastructure.exception.IllegalModelArgumentException;
+import com.sonastan.jwt_auth.infrastructure.exception.NotFoundException;
 import com.sonastan.jwt_auth.infrastructure.exception.ServerException;
 import com.sonastan.jwt_auth.infrastructure.security.user.UserDetailsImpl;
 
@@ -50,10 +51,11 @@ public class UserServiceImpl implements UserService {
                     return new ServerException("Role not found: " + UserRole.ROLE_USER);
                 });
         User user = new User(username, email, encodedPassword, firstname, lastname, role);
-        publisher.publishEvent(new UserCreatedEvent(user));
-        log.info("UserCreatedEvent published for user '{}'", username);
         User persistUser = userRepository.save(user);
         log.info("User '{}' saved successfully with UUID: {}", username, persistUser.getUserUuid());
+        publisher.publishEvent(new UserCreatedEvent(persistUser));
+        log.info("UserCreatedEvent published for user '{}'", username);
+
         return UserDetailsImpl.build(persistUser);
     }
 
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> {
                     log.error("User not found with UUID: {}", userUuid);
-                    return new IllegalModelArgumentException("User not found with UUID: " + userUuid);
+                    return new NotFoundException("User not found with UUID: " + userUuid);
                 });
         validateUserData(username, email, user);
         user.setUsername(username);
@@ -84,7 +86,7 @@ public class UserServiceImpl implements UserService {
         int deleteCount = userRepository.deleteByUserUuid(userUuid);
         if (deleteCount == 0) {
             log.warn("No user found with UUID to delete: {}", userUuid);
-            throw new IllegalModelArgumentException("No user found with UUID: " + userUuid);
+            throw new NotFoundException("No user found with UUID: " + userUuid);
         }
         log.info("User with UUID '{}' deleted successfully", userUuid);
     }
@@ -113,7 +115,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .orElseThrow(() -> {
                     log.error("User not found with UUID: {}", userUuid);
-                    return new IllegalModelArgumentException("User not found with UUID: " + userUuid);
+                    return new NotFoundException("User not found with UUID: " + userUuid);
                 });
     }
 
@@ -138,6 +140,12 @@ public class UserServiceImpl implements UserService {
             throw new IllegalModelArgumentException("Password and confirm password do not match");
         }
 
+        if (passwordChecker.check(password).isCompromised()) {
+            log.warn("Password '{}' is compromised", password);
+            throw new IllegalModelArgumentException(
+                    "Password '" + password + "' is compromised. Please choose a different password.");
+        }
+
         if (userRepository.existsByUsername(username)) {
             log.warn("User with username '{}' already exists", username);
             throw new IllegalModelArgumentException("User with username '" + username + "' already exists");
@@ -148,11 +156,6 @@ public class UserServiceImpl implements UserService {
             throw new IllegalModelArgumentException("User with email '" + email + "' already exists");
         }
 
-        if (passwordChecker.check(password).isCompromised()) {
-            log.warn("Password '{}' is compromised", password);
-            throw new IllegalModelArgumentException(
-                    "Password '" + password + "' is compromised. Please choose a different password.");
-        }
         log.debug("Validation passed for username '{}', email '{}' and password", username, email);
     }
 

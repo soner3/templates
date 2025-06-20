@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sonastan.jwt_auth.infrastructure.exception.IllegalModelArgumentException;
+import com.sonastan.jwt_auth.infrastructure.exception.NotFoundException;
 
 @RestControllerAdvice
 public class ApiControllerAdvice {
@@ -62,12 +63,17 @@ public class ApiControllerAdvice {
 
     @ExceptionHandler
     public ResponseEntity<ProblemDetail> handleIllegalModelArgumentException(IllegalModelArgumentException ex) {
-        return createProblemDetail("Invalid Request", HttpStatus.BAD_REQUEST, ex);
+        return createProblemDetail("Invalid Model Argument", HttpStatus.BAD_REQUEST, ex);
     }
 
     @ExceptionHandler
     public ResponseEntity<ProblemDetail> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         return createProblemDetail("User Not Found", HttpStatus.NOT_FOUND, ex);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handleNotFoundException(NotFoundException ex) {
+        return createProblemDetail("Not Found", HttpStatus.NOT_FOUND, ex);
     }
 
 }

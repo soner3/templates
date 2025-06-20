@@ -1,6 +1,7 @@
 package com.sonastan.jwt_auth.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import com.sonastan.jwt_auth.TestcontainersConfiguration;
 import com.sonastan.jwt_auth.application.service.JwtService;
@@ -85,5 +87,13 @@ public class JwtServiceImplTest {
         Jwt accessToken = jwtService.refreshAccessToken(refreshToken);
         jwtService.validateToken(refreshToken.getTokenValue(), JwtType.REFRESH);
         jwtService.validateToken(accessToken.getTokenValue(), JwtType.ACCESS);
+    }
+
+    @Test
+    void test_refresh_or_access_token_have_wrong_types() {
+        Jwt refreshToken = jwtService.generateRefreshToken(UserDetailsImpl.build(user));
+        Jwt accessToken = jwtService.refreshAccessToken(refreshToken);
+        assertThrows(JwtException.class, () -> jwtService.validateToken(refreshToken.getTokenValue(), JwtType.ACCESS));
+        assertThrows(JwtException.class, () -> jwtService.validateToken(accessToken.getTokenValue(), JwtType.REFRESH));
     }
 }
