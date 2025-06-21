@@ -1,3 +1,8 @@
+Here's your updated `README.md` with the **important note about `SCOPE_` prefixing** for method-level security using `@PreAuthorize` and `hasAuthority(...)` – seamlessly integrated into the **Security Design** section 🔐:
+
+---
+
+````markdown
 # 🔐 JWT Auth Server Template for Single Page Applications
 
 This project is a **starter template** for building secure authentication backends for **Single Page Applications (SPAs)** using **Spring Boot** and **Spring Security**. It is **not production-ready** out of the box — key management and database configuration must be adapted before production use.
@@ -68,15 +73,34 @@ All endpoints are documented for quick integration and testing.
 - Based on the official Spring docs:  
   [Spring OAuth2 Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html#oauth2-resource-server)
 
+### ⚠️ Authority Prefixing (`SCOPE_`)
+
+Spring Security automatically adds the prefix `SCOPE_` to JWT scopes when converting them to authorities.
+
+**Example:**
+If your JWT includes:
+```json
+"scope": ["ROLE_ADMIN"]
+````
+
+Then in your method-level security annotations, you must use:
+
+```java
+@PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
+```
+
+This behavior is aligned with Spring's default `JwtGrantedAuthoritiesConverter` and can be customized if needed.
+
 ---
 
 ## 📈 Monitoring
 
-- Exposes key endpoints via Spring Boot Actuator:
-  - `/actuator/health`
-  - `/actuator/metrics`
-  - `/actuator/prometheus`
-- **Prometheus-compatible**, ready for integration into monitoring systems
+* Exposes key endpoints via Spring Boot Actuator:
+
+  * `/actuator/health`
+  * `/actuator/metrics`
+  * `/actuator/prometheus`
+* **Prometheus-compatible**, ready for integration into monitoring systems
 
 ---
 
@@ -89,3 +113,4 @@ com.sonastan.jwt_auth
 ├── infrastructure    # DB configuration, security, etc.
 ├── interfaces.rest   # REST controllers and DTOs
 └── JwtAuthApplication.java
+```
