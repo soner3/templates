@@ -38,110 +38,119 @@ import com.sonastan.jwt_auth.interfaces.rest.dto.auth.RefreshResponseDto;
 @AutoConfigureMockMvc
 public class AuthControllerTest {
 
-    @Autowired
-    JwtService jwtService;
+        @Autowired
+        JwtService jwtService;
 
-    ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
-    MockMvc mvc;
+        @Autowired
+        MockMvc mvc;
 
-    @Autowired
-    UserService userService;
+        @Autowired
+        UserService userService;
 
-    @Autowired
-    RoleRepository roleRepository;
+        @Autowired
+        RoleRepository roleRepository;
 
-    @Autowired
-    UserRepository userRepository;
+        @Autowired
+        UserRepository userRepository;
 
-    @Test
-    void test_csrf_is_ok() throws Exception {
-        mvc.perform(get("/v1/auth/csrf"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.token").isNotEmpty());
-    }
+        @Test
+        void test_csrf_is_ok() throws Exception {
+                mvc.perform(get("/v1/auth/csrf"))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.token").isNotEmpty());
+        }
 
-    @Test
-    void test_login_status_is_200_if_successfull() throws Exception {
-        String requestBody = mapper.writeValueAsString(new LoginRequestDto("admin", "admin123"));
-        MvcResult res = mvc.perform(post("/v1/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        LoginResponseDto responseDto = mapper.readValue(res.getResponse().getContentAsString(), LoginResponseDto.class);
-        jwtService.validateToken(responseDto.accessToken(), JwtType.ACCESS);
-        jwtService.validateToken(responseDto.refreshToken(), JwtType.REFRESH);
-    }
+        @Test
+        void test_login_status_is_200_if_successfull() throws Exception {
+                roleRepository.save(new Role(UserRole.ROLE_USER));
+                userService.registerUser("username", "UserUser1234!", "UserUser1234!", "email",
+                                "firstname",
+                                "lastname");
+                String requestBody = mapper.writeValueAsString(new LoginRequestDto("username", "UserUser1234!"));
+                MvcResult res = mvc.perform(post("/v1/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+                LoginResponseDto responseDto = mapper.readValue(res.getResponse().getContentAsString(),
+                                LoginResponseDto.class);
+                jwtService.validateToken(responseDto.accessToken(), JwtType.ACCESS);
+                jwtService.validateToken(responseDto.refreshToken(), JwtType.REFRESH);
+                userRepository.deleteAll();
+                roleRepository.deleteAll();
+        }
 
-    @Test
-    void test_login_status_is_403_without_csrf() throws Exception {
-        mvc.perform(post("/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
-                .andExpect(status().isForbidden());
-    }
+        @Test
+        void test_login_status_is_403_without_csrf() throws Exception {
+                mvc.perform(post("/v1/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
+                                .andExpect(status().isForbidden());
+        }
 
-    @Test
-    void test_login_status_is_400_if_credentials_are_invalid() throws Exception {
-        mvc.perform(post("/v1/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"unknown\",\"password\":\"admin123\"}"))
-                .andExpect(status().isBadRequest());
-    }
+        @Test
+        void test_login_status_is_400_if_credentials_are_invalid() throws Exception {
+                mvc.perform(post("/v1/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"unknown\",\"password\":\"admin123\"}"))
+                                .andExpect(status().isBadRequest());
+        }
 
-    @Test
-    void test_refresh_status_is_200_if_successful() throws Exception {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-        roleRepository.save(new Role(UserRole.ROLE_USER));
-        UserDetails user = userService.registerUser("username", "UserUser1234!", "UserUser1234!", "email", "firstname",
-                "lastname");
-        Jwt refreshToken = jwtService.generateRefreshToken(user);
+        @Test
+        void test_refresh_status_is_200_if_successful() throws Exception {
+                userRepository.deleteAll();
+                roleRepository.deleteAll();
+                roleRepository.save(new Role(UserRole.ROLE_USER));
+                UserDetails user = userService.registerUser("username", "UserUser1234!", "UserUser1234!", "email",
+                                "firstname",
+                                "lastname");
+                Jwt refreshToken = jwtService.generateRefreshToken(user);
 
-        MvcResult res = mvc.perform(post("/v1/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf().useInvalidToken())
-                .header("Authorization", "Bearer " + refreshToken.getTokenValue()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        RefreshResponseDto responseDto = mapper.readValue(res.getResponse().getContentAsString(),
-                RefreshResponseDto.class);
-        jwtService.validateToken(responseDto.accessToken(), JwtType.ACCESS);
-        jwtService.validateToken(refreshToken.getTokenValue(), JwtType.REFRESH);
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-    }
+                MvcResult res = mvc.perform(post("/v1/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf().useInvalidToken())
+                                .header("Authorization", "Bearer " + refreshToken.getTokenValue()))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andReturn();
+                RefreshResponseDto responseDto = mapper.readValue(res.getResponse().getContentAsString(),
+                                RefreshResponseDto.class);
+                jwtService.validateToken(responseDto.accessToken(), JwtType.ACCESS);
+                jwtService.validateToken(refreshToken.getTokenValue(), JwtType.REFRESH);
+                userRepository.deleteAll();
+                roleRepository.deleteAll();
+        }
 
-    @Test
-    void test_refresh_status_is_404_if_user_not_found() throws Exception {
-        Jwt refreshToken = jwtService.generateRefreshToken(
-                UserDetailsImpl.build(new User("null", "null", "null", "null", "null", new Role(UserRole.ROLE_USER))));
+        @Test
+        void test_refresh_status_is_404_if_user_not_found() throws Exception {
+                Jwt refreshToken = jwtService.generateRefreshToken(
+                                UserDetailsImpl.build(new User("null", "null", "null", "null", "null",
+                                                new Role(UserRole.ROLE_USER))));
 
-        mvc.perform(post("/v1/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + refreshToken.getTokenValue()))
-                .andExpect(status().isNotFound());
-    }
+                mvc.perform(post("/v1/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + refreshToken.getTokenValue()))
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void test_refresh_status_is_401_if_token_is_missing() throws Exception {
-        mvc.perform(post("/v1/auth/refresh")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
-    }
+        @Test
+        void test_refresh_status_is_401_if_token_is_missing() throws Exception {
+                mvc.perform(post("/v1/auth/refresh")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isUnauthorized());
+        }
 
-    @Test
-    void test_refresh_status_is_403_if_token_and_csrf_is_missing() throws Exception {
-        mvc.perform(post("/v1/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
+        @Test
+        void test_refresh_status_is_403_if_token_and_csrf_is_missing() throws Exception {
+                mvc.perform(post("/v1/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isForbidden());
+        }
 }

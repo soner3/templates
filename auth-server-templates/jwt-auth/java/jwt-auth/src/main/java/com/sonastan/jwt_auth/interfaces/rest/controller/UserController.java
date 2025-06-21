@@ -46,7 +46,6 @@ public class UserController {
                         @ApiResponse(responseCode = "200", description = "Current user details", content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
                         @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
         })
         public ResponseEntity<UserResponseDto> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
                 UserDetails userDetails = userService.loadUserByUuid(jwt.getSubject());
@@ -58,7 +57,6 @@ public class UserController {
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
                         @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
         })
         public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid CreateUserDto createUserDto) {
                 log.debug("Creating user with username: {}", createUserDto.username());
@@ -80,7 +78,6 @@ public class UserController {
                         @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
                         @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
         })
         public ResponseEntity<UserResponseDto> updateUser(@AuthenticationPrincipal Jwt jwt,
                         @RequestBody @Valid UpdateUserDto updateUserDto) {
@@ -99,7 +96,6 @@ public class UserController {
                         @ApiResponse(responseCode = "204", description = "User deleted successfully", content = @Content),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
                         @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
         })
         public ResponseEntity<Void> deleteCurrentUser(@AuthenticationPrincipal Jwt jwt) {
                 log.debug("Deleting user");
