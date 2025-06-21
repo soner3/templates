@@ -45,7 +45,6 @@ public class AuthController {
                         @ApiResponse(responseCode = "200", description = "Login successful. Returns JWT access and refresh tokens.", content = @Content(schema = @Schema(implementation = LoginResponseDto.class, title = "LoginResponseDto", description = "Response containing JWT access and refresh tokens."))),
                         @ApiResponse(responseCode = "400", description = "Invalid request. The request body is malformed or missing required fields.", content = @Content(schema = @Schema(implementation = ProblemDetail.class, title = "ProblemDetail", description = "Details about the validation or request error."))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized. The credentials are invalid.", content = @Content(schema = @Schema(title = "Empty", description = "No content returned for unauthorized requests."))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error. An unexpected error occurred.", content = @Content(schema = @Schema(implementation = ProblemDetail.class, title = "ProblemDetail", description = "Details about the server error.")))
         })
         @PostMapping("/login")
         public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
@@ -62,9 +61,8 @@ public class AuthController {
 
         @Operation(summary = "Refresh access token using a valid refresh token", description = "Refreshes the JWT access token using a valid refresh token. Requires a valid refresh token.", responses = {
                         @ApiResponse(responseCode = "200", description = "Token refreshed. Returns a new JWT access token.", content = @Content(schema = @Schema(implementation = RefreshResponseDto.class, title = "RefreshResponseDto", description = "Response containing the new JWT access token."))),
-                        @ApiResponse(responseCode = "400", description = "Invalid refresh token. The provided token is invalid or expired.", content = @Content(schema = @Schema(implementation = ProblemDetail.class, title = "ProblemDetail", description = "Details about the invalid refresh token."))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized. The refresh token is missing or invalid.", content = @Content(schema = @Schema(title = "Empty", description = "No content returned for unauthorized requests."))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error. An unexpected error occurred.", content = @Content(schema = @Schema(implementation = ProblemDetail.class, title = "ProblemDetail", description = "Details about the server error.")))
+                        @ApiResponse(responseCode = "404", description = "User not found.", content = @Content(schema = @Schema(implementation = ProblemDetail.class, title = "ProblemDetail", description = "Details about the user not found error."))),
         }, security = {
                         @SecurityRequirement(name = "jwt"),
         })
@@ -78,7 +76,6 @@ public class AuthController {
 
         @Operation(summary = "Get CSRF token", description = "Returns the CSRF token for the current session. Useful for clients to include in subsequent requests.", responses = {
                         @ApiResponse(responseCode = "200", description = "CSRF token returned successfully.", content = @Content(schema = @Schema(implementation = CsrfToken.class))),
-                        @ApiResponse(responseCode = "500", description = "Internal server error. An unexpected error occurred.", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
         })
         @GetMapping("/csrf")
         public ResponseEntity<CsrfToken> csrf(CsrfToken csrfToken) {
