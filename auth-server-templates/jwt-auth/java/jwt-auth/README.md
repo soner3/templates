@@ -1,8 +1,3 @@
-Here's your updated `README.md` with the **important note about `SCOPE_` prefixing** for method-level security using `@PreAuthorize` and `hasAuthority(...)` – seamlessly integrated into the **Security Design** section 🔐:
-
----
-
-````markdown
 # 🔐 JWT Auth Server Template for Single Page Applications
 
 This project is a **starter template** for building secure authentication backends for **Single Page Applications (SPAs)** using **Spring Boot** and **Spring Security**. It is **not production-ready** out of the box — key management and database configuration must be adapted before production use.
